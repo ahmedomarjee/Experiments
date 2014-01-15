@@ -1,0 +1,14 @@
+build/
+RemoteSystemsTempFiles/
+Servers/
+.metadata/
+.settings/
+.project
+.classpath
+uml/
+TravelAgency/
+.gradle/
+bin/
+build/
+target/
+docx-ruleengine/
