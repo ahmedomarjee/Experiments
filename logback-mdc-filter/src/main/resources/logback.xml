@@ -1,0 +1,49 @@
+<configuration debug="false">
+	<!-- <jmxConfigurator /> -->
+	<!-- <turboFilter class="ch.qos.logback.classic.turbo.MDCFilter"> <name>anish</name> 
+		<MDCKey>key1</MDCKey> <Value>value1</Value> <OnMatch>ACCEPT</OnMatch> </turboFilter> -->
+	
+
+	<!-- <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
+		<connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource"> 
+			<driverClass>com.mysql.jdbc.Driver</driverClass> <url>jdbc:mysql://localhost:3306/logback</url> 
+			<user>root</user> <password></password> </connectionSource>
+		<connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+			<dataSource class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"> 
+				<serverName>localhost</serverName> <port>3306</port> <databaseName>logback</databaseName> 
+				<user>root</user> <password></password> </dataSource>
+			<dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource">
+				<driverClass>com.mysql.jdbc.Driver</driverClass>
+				<jdbcUrl>jdbc:mysql://localhost:3306/logback</jdbcUrl>
+				<user>root</user>
+				<password></password>
+			</dataSource>
+		</connectionSource>
+	</appender>
+
+	<appender name="MONGO"
+		class="ch.qos.logback.contrib.mongodb.MongoDBLoggingEventAppender">
+		<uri>mongodb://localhost/local.logs</uri>
+	</appender>
+
+	<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="MONGO" />
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>myapp.log</file>
+		<encoder>
+			<pattern>%logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender> -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%X{key1} - %X{key2} - %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</pattern>
+		</encoder>
+	</appender>
+	<root level="debug">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
