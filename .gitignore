@@ -11,3 +11,4 @@ TravelAgency/
 bin/
 build/
 target/
+.springBeans

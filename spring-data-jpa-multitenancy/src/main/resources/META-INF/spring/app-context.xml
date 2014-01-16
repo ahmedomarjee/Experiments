@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<description>Example configuration to get you started.</description>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="${entitymanager.packages.to.scan}" />
+		<property name="jpaVendorAdapter">
+			<!-- <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"> -->
+			<bean
+				class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+				<property name="generateDdl" value="${db.generateDdl}" />
+				<property name="databasePlatform" value="${db.dialect}" />
+				<property name="showSql" value="${db.showSql}" />
+			</bean>
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.format_sql">${db.format_sql}</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="eclipselink.weaving">false</prop>
+			</props>
+		</property>
+		<property name="persistenceUnitManager">
+			<bean
+				class="org.springframework.data.jpa.support.MergingPersistenceUnitManager">
+				<property name="persistenceXmlLocations">
+					<list>
+						<value>classpath*:META-INF/*persistence*.xml</value>
+					</list>
+				</property>
+				<property name="defaultDataSource" ref="dataSource" />
+			</bean>
+		</property>
+		<property name="persistenceUnitName" value="spring-jpa" />
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+		<property name="jpaDialect">
+			<!-- <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" 
+				/> -->
+			<bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
+		</property>
+	</bean>
+
+	<bean id="boneCPdataSource" class="com.jolbox.bonecp.BoneCPDataSource"
+		scope="prototype">
+		<property name="driverClass" value="${db.driver}" />
+		<property name="jdbcUrl" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+	</bean>
+
+	<bean id="dataSource" class="org.gradle.TenantAwareDataSource">
+		<property name="driverClass" value="${db.driver}" />
+		<property name="jdbcUrl" value="${db.url}" />
+		<property name="username" value="${db.username}" />
+		<property name="password" value="${db.password}" />
+	</bean>
+	<bean id="tenantContext" class="org.gradle.TenantContext" scope="session">
+		<aop:scoped-proxy  />
+	</bean>
+	<bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+		<property name="scopes">
+			<map>
+				<entry key="session">
+					<bean class="org.springframework.context.support.SimpleThreadScope" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+	<bean id="currentTenantResolver" class="org.gradle.DummyTenantResolver" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<jpa:repositories base-package="org.gradle.repositories"
+		factory-class="org.gradle.MultiTenantJpaRepositoryFactoryBean" />
+
+	<jpa:auditing auditor-aware-ref="auditorAwareBean" />
+
+	<bean id="auditorAwareBean" class="org.gradle.AuditorAwareImpl" />
+
+</beans>
